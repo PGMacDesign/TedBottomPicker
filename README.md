@@ -190,6 +190,105 @@ You can customize something ...<br />
 
 <br/><br/>
 
+## Bugs and Troubleshooting
+
+You may run into this issue when building: 
+
+```
+Manifest merger failed with multiple errors, see logs
+```
+
+This is usually caused by you having a `FileProvider` or an xml file `file_paths` with the same name. IE:
+
+```
+    <provider
+            android:name="androidx.core.content.FileProvider">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+    </provider>
+```
+
+In this situation, just add this line to your File Provider in the manifest and it should resolve the issue:
+
+```
+    <provider
+            android:name="androidx.core.content.FileProvider"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"
+                tools:replace="android:resource"/>
+    </provider>
+```
+
+
+
+
+Executing tasks: [clean, :app:assembleDebug] in project /Users/patrickmacdowell/Android Workspace/KajabiApp
+
+
+
+> Configure project :app
+Kotlin plugin should be enabled before 'kotlin-kapt'
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+'kapt.generateStubs' is not used by the 'kotlin-kapt' plugin
+app: 'annotationProcessor' dependencies won't be recognized as kapt annotation processors. Please change the configuration name to 'kapt' for these artifacts: 'com.github.bumptech.glide:compiler:4.7.1'.
+
+> Task :clean
+> Task :app:clean
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:compileDebugAidl NO-SOURCE
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugRenderscript NO-SOURCE
+> Task :app:compileDebugShaders
+> Task :app:generateDebugAssets
+> Task :app:mergeDebugAssets
+
+> Task :app:processDebugGoogleServices
+Parsing json file: /Users/patrickmacdowell/Android Workspace/KajabiApp/app/google-services.json
+
+> Task :app:checkDebugManifest
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:mainApkListPersistenceDebug
+
+> Task :app:processDebugManifest FAILED
+/Users/patrickmacdowell/Android Workspace/KajabiApp/app/src/main/AndroidManifest.xml:323:13-72 Error:
+	Attribute provider#androidx.core.content.FileProvider@authorities value=(kajabi.kajabiapp.android.fileprovider) from AndroidManifest.xml:323:13-72
+	is also present at [com.github.PGMacDesign:TedBottomPicker:3.0.0] AndroidManifest.xml:16:13-60 value=(kajabi.kajabiapp.provider).
+	Suggestion: add 'tools:replace="android:authorities"' to <provider> element at AndroidManifest.xml:321:9-329:20 to override.
+/Users/patrickmacdowell/Android Workspace/KajabiApp/app/src/main/AndroidManifest.xml:328:17-51 Error:
+	Attribute meta-data#android.support.FILE_PROVIDER_PATHS@resource value=(@xml/file_paths) from AndroidManifest.xml:328:17-51
+	is also present at [com.github.PGMacDesign:TedBottomPicker:3.0.0] AndroidManifest.xml:21:17-55 value=(@xml/provider_paths).
+	Suggestion: add 'tools:replace="android:resource"' to <meta-data> element at AndroidManifest.xml:326:13-328:54 to override.
+
+See http://g.co/androidstudio/manifest-merger for more information about the manifest merger.
+
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:processDebugManifest'.
+> Manifest merger failed with multiple errors, see logs
+
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output. Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 19s
+10 actionable tasks: 10 executed
+
+
 
 ## License 
  ```code
