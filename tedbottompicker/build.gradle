@@ -1,6 +1,16 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.PGMacDesign'
 
 
+allprojects {
+	repositories {
+		jcenter()
+		google()
+		maven { url "https://jitpack.io" }
+		maven { url "https://maven.google.com" }
+	}
+}
 android {
 
     compileSdkVersion 29

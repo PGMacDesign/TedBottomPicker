@@ -1,14 +1,6 @@
 apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.PGMacDesign'
 
-allprojects {
-	repositories {
-		jcenter()
-		google()
-		maven { url "https://jitpack.io" }
-		maven { url "https://maven.google.com" }
-	}
-}
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.source
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
