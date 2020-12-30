@@ -3,7 +3,7 @@ package gun0912.tedbottompickerdemo;
 import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                             .setPeekHeight(1600)
                             .showTitle(false)
                             .setCompleteButtonText("Done")
-                            .setEmptySelectionText("No Select")
+                            .setEmptySelectionText("None Selected")
                             .setSelectedUriList(selectedUriList)
                             .showMultiImage(uriList -> {
                                 selectedUriList = uriList;

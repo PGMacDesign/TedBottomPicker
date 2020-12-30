@@ -1,6 +1,7 @@
 package gun0912.tedbottompicker;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -13,23 +14,23 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.ColorRes;
-import android.support.annotation.DimenRes;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.ColorRes;
+import androidx.annotation.DimenRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -123,6 +124,7 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
@@ -262,7 +264,7 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
                         }
 
                         break;
-
+	                // TODO: 12/29/20 add in other supported type for `other` here
                     default:
                         errorMessage();
                 }
@@ -377,35 +379,44 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
     private void startCameraIntent() {
-        Intent cameraInent;
+        Intent cameraIntent;
         File mediaFile;
 
         if (builder.mediaType == BaseBuilder.MediaType.IMAGE) {
-            cameraInent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             mediaFile = getImageFile();
-        } else {
-            cameraInent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        } else if(builder.mediaType == BaseBuilder.MediaType.VIDEO){
+            cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
             mediaFile = getVideoFile();
+        } else {
+	        // TODO: 12/29/20 rework this so the URI is retrieved after the result comes back
+	        cameraIntent = new Intent(Intent.ACTION_GET_CONTENT);
+	        cameraIntent.setAction(Intent.ACTION_GET_CONTENT);
+	        cameraIntent.setType("*/*");
+	        mediaFile = null;
         }
 
-        if (cameraInent.resolveActivity(getActivity().getPackageManager()) == null) {
+        if (cameraIntent.resolveActivity(getActivity().getPackageManager()) == null) {
             errorMessage("This Application do not have Camera Application");
             return;
         }
+        
+        Uri photoURI = (mediaFile == null) ? null : FileProvider.getUriForFile(getContext(),
+		        getContext().getApplicationContext().getPackageName() + ".provider", mediaFile);
 
-
-        Uri photoURI = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", mediaFile);
-
-        List<ResolveInfo> resolvedIntentActivities = getContext().getPackageManager().queryIntentActivities(cameraInent, PackageManager.MATCH_DEFAULT_ONLY);
-        for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
-            String packageName = resolvedIntentInfo.activityInfo.packageName;
-            getContext().grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        List<ResolveInfo> resolvedIntentActivities = getContext().getPackageManager().queryIntentActivities(
+        		cameraIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        if(photoURI != null){
+	        for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
+		        String packageName = resolvedIntentInfo.activityInfo.packageName;
+		        getContext().grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+	        }
         }
 
-        cameraInent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
         TedOnActivityResult.with(getActivity())
-                .setIntent(cameraInent)
+                .setIntent(cameraIntent)
                 .setListener(new OnActivityResultListener() {
                     @Override
                     public void onActivityResult(int resultCode, Intent data) {
@@ -494,8 +505,12 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
         } else {
             galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
             galleryIntent.setType("video/*");
-
         }
+//	    /**
+//	     * This is to prevent files that cannot be read because they are not actually locally on
+//	     * the device. Will only be used for the `OTHER` MediaType once implemented.
+//	     */
+//	    galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
         if (galleryIntent.resolveActivity(getActivity().getPackageManager()) == null) {
             errorMessage("This Application do not have Gallery Application");
@@ -842,6 +857,11 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
             return (T) this;
         }
 
+//        public T showOtherFiles() {
+//            this.mediaType = MediaType.OTHER;
+//            return (T) this;
+//        }
+
         public TedBottomSheetDialogFragment create() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                     && ContextCompat.checkSelfPermission(fragmentActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -856,12 +876,14 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
             customBottomSheetDialogFragment.builder = (T) this;
             return customBottomSheetDialogFragment;
         }
-
+	
+	    // TODO: 12/29/20 Add in the `OTHER` type for other file types (IE a PDF File)
         @Retention(RetentionPolicy.SOURCE)
-        @IntDef({MediaType.IMAGE, MediaType.VIDEO})
+        @IntDef({MediaType.IMAGE, MediaType.VIDEO}) //, MediaType.OTHER
         public @interface MediaType {
             int IMAGE = 1;
             int VIDEO = 2;
+//            int OTHER = 3;
         }
 
 

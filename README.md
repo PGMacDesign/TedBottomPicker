@@ -43,7 +43,7 @@ If you want pick image from gallery or take picture, this library can help easil
 ```javascript
 dependencies {
     implementation 'gun0912.ted:tedbottompicker:x.y.z'
-    //implementation 'gun0912.ted:tedbottompicker:2.0.1'
+    //implementation 'gun0912.ted:tedbottompicker:3.0.0'
 }
 
 ```
