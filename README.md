@@ -1,4 +1,6 @@
  
+ [![JitPack](https://jitpack.io/v/pgmacdesign/TedBottomPicker.svg)](https://jitpack.io/#pgmacdesign/TedBottomPicker)
+ 
 # What is TedBottomPicker?
 In Google's Material Design, Google introduce **Bottom sheets**.([Components – Bottom sheets](https://material.google.com/components/bottom-sheets.html))<br/>
 **Bottom sheets** slide up from the bottom of the screen to reveal more content.
@@ -39,19 +41,25 @@ If you want pick image from gallery or take picture, this library can help easil
 
 
 ### Gradle
-[ ![Download](https://api.bintray.com/packages/tkdrnjs0912/maven/tedbottompicker/images/download.svg) ](https://bintray.com/tkdrnjs0912/maven/tedbottompicker/_latestVersion)
-```javascript
-dependencies {
-    implementation 'gun0912.ted:tedbottompicker:x.y.z'
-    //implementation 'gun0912.ted:tedbottompicker:3.0.0'
-}
 
+To install, insert this into your projects root build.gradle file
+
+```groovy
+allprojects {
+    repositories {
+        jcenter()
+        google()
+        maven { url "https://jitpack.io" }
+        maven { url "https://maven.google.com" }
+    }
+}
 ```
 
-If you think this library is useful, please press star button at upside. 
-<br/>
-<img src="https://phaser.io/content/news/2015/09/10000-stars.png" width="200">
-<br/><br/>
+And include this in your dependencies section of your module .gradle file:
+
+```groovy
+implementation ('com.github.PGMacDesign:TedBottomPicker:3.0.0')
+```
 
 
 
