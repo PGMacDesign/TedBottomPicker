@@ -225,10 +225,16 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
         rc_gallery = contentView.findViewById(R.id.rc_gallery);
         tv_title = contentView.findViewById(R.id.tv_title);
         btn_done = contentView.findViewById(R.id.btn_done);
-
+		if(this.builder.contentViewText != null){
+			if(!this.builder.contentViewText.isEmpty()){
+				this.tv_title.setText(this.builder.contentViewText);
+			}
+		}
+        
         selected_photos_container_frame = contentView.findViewById(R.id.selected_photos_container_frame);
         selected_photos_container = contentView.findViewById(R.id.selected_photos_container);
         selected_photos_empty = contentView.findViewById(R.id.selected_photos_empty);
+	
     }
 
     private void setRecyclerView() {
@@ -648,6 +654,7 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
         private int titleBackgroundResId;
         private int selectMaxCount = Integer.MAX_VALUE;
         private int selectMinCount = 0;
+        private String contentViewText;
         private String completeButtonText;
         private String emptySelectionText;
         private String selectMaxCountErrorText;
@@ -674,6 +681,17 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         public T setSpacingResId(@DimenRes int dimenResId) {
             this.spacing = fragmentActivity.getResources().getDimensionPixelSize(dimenResId);
+            return (T) this;
+        }
+	
+	    /**
+	     * This is the content view text that defaults to:
+	     * `Select Image`
+	     * @param contentViewText
+	     * @return
+	     */
+        public T setContentViewText(String contentViewText) {
+            this.contentViewText = contentViewText;
             return (T) this;
         }
 
@@ -801,12 +819,24 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
             this.completeButtonText = fragmentActivity.getResources().getString(completeButtonResId);
             return (T) this;
         }
-
+        
+	    /**
+	     * This is the content view text that defaults to:
+	     * `None Selected`
+	     * @param emptySelectionText
+	     * @return
+	     */
         public T setEmptySelectionText(String emptySelectionText) {
             this.emptySelectionText = emptySelectionText;
             return (T) this;
         }
-
+	
+	    /**
+	     * This is the content view text that defaults to:
+	     * `None Selected`
+	     * @param emptySelectionResId
+	     * @return
+	     */
         public T setEmptySelectionText(@StringRes int emptySelectionResId) {
             this.emptySelectionText = fragmentActivity.getResources().getString(emptySelectionResId);
             return (T) this;

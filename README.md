@@ -59,8 +59,10 @@ And include this in your dependencies section of your module .gradle file:
 
 ```groovy
 implementation ('com.github.PGMacDesign:TedBottomPicker:3.0.0')
+implementation ('com.github.PGMacDesign:tedonactivityresult:1.1.0')
 ```
 
+(Note that this library requires the `tedonactivityresult` in order to use the gallery + camera options)
 
 
 ## How to use

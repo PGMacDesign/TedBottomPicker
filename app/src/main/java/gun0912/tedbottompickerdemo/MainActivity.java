@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                             .setSelectedUri(selectedUri)
                             //.showVideoMedia()
                             .setPeekHeight(1200)
+		                    .setContentViewText("Select a photo, yo!")
                             .show(uri -> {
                                 Log.d("ted", "uri: " + uri);
                                 Log.d("ted", "uri.getPath(): " + uri.getPath());
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                             .setPeekHeight(1600)
                             .showTitle(false)
                             .setCompleteButtonText("Done")
-                            .setEmptySelectionText("None Selected")
+                            .setEmptySelectionText("None Selected... yet")
                             .setSelectedUriList(selectedUriList)
                             .showMultiImage(uriList -> {
                                 selectedUriList = uriList;
@@ -130,8 +131,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-
+    
     private void setRxSingleShowButton() {
 
         Button btnSingleShow = findViewById(R.id.btn_rx_single_show);
@@ -171,8 +171,7 @@ public class MainActivity extends AppCompatActivity {
             checkPermission(permissionlistener);
         });
     }
-
-
+    
     private void setRxMultiShowButton() {
 
         Button btnRxMultiShow = findViewById(R.id.btn_rx_multi_show);
@@ -186,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                             .setPeekHeight(1600)
                             .showTitle(false)
                             .setCompleteButtonText("Done")
-                            .setEmptySelectionText("No Select")
+                            .setEmptySelectionText("None selected... yet")
                             .setSelectedUriList(selectedUriList)
                             .showMultiImage()
                             .subscribe(uris -> {
