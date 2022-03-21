@@ -3,6 +3,7 @@ package gun0912.tedbottompicker;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -251,10 +252,18 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
                 switch (pickerTile.getTileType()) {
                     case GalleryAdapter.PickerTile.CAMERA:
-                        startCameraIntent();
+                        try {
+                            startCameraIntent();
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
                         break;
                     case GalleryAdapter.PickerTile.GALLERY:
-                        startGalleryIntent();
+                        try {
+                            startGalleryIntent();
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
                         break;
                     case GalleryAdapter.PickerTile.IMAGE:
                         if (pickerTile.getImageUri() != null) {
@@ -377,35 +386,64 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
     private void startCameraIntent() {
-        Intent cameraInent;
+        Intent cameraIntent;
         File mediaFile;
 
         if (builder.mediaType == BaseBuilder.MediaType.IMAGE) {
-            cameraInent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             mediaFile = getImageFile();
         } else {
-            cameraInent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-            mediaFile = getVideoFile();
+            //As I am only needing Image Support for this, I am removing the video option
+//            cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//            mediaFile = getVideoFile();
+            mediaFile = getImageFile();
         }
+//        if (cameraIntent.resolveActivity(getActivity().getPackageManager()) == null) {
+//            errorMessage("This Application does not have the Camera Application");
+//            return;
+//        }else {
+//            ContentValues values = new ContentValues(1);
+//            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+//
+//            File imageFile = getImageFile();
+//            Uri photoURI = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", imageFile);
+//
+//            List<ResolveInfo> resolvedIntentActivities = getContext().getPackageManager().queryIntentActivities(cameraIntent, PackageManager.MATCH_DEFAULT_ONLY);
+//            for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
+//                String packageName = resolvedIntentInfo.activityInfo.packageName;
+//                getContext().grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//            }
+//
+//            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//            startActivityForResult(cameraIntent, REQ_CODE_CAMERA);
+//        }
 
-        if (cameraInent.resolveActivity(getActivity().getPackageManager()) == null) {
-            errorMessage("This Application do not have Camera Application");
-            return;
-        }
+
+        //Removed as it was throwing a false negative
+//        if(false){
+//            if (cameraIntent.resolveActivity(getActivity().getPackageManager()) == null) {
+////                errorMessage("(1) This Application does not have the Camera Application");
+//                if(cameraIntent.resolveActivity(getContext().getPackageManager()) == null){
+//                    errorMessage("(2) This Application does not have the Camera Application");
+//                    return;
+//                }
+//            }
+//        }
 
 
         Uri photoURI = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", mediaFile);
 
-        List<ResolveInfo> resolvedIntentActivities = getContext().getPackageManager().queryIntentActivities(cameraInent, PackageManager.MATCH_DEFAULT_ONLY);
+        List<ResolveInfo> resolvedIntentActivities = getContext().getPackageManager().queryIntentActivities(cameraIntent, PackageManager.MATCH_DEFAULT_ONLY);
         for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
             String packageName = resolvedIntentInfo.activityInfo.packageName;
             getContext().grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
 
-        cameraInent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
         TedOnActivityResult.with(getActivity())
-                .setIntent(cameraInent)
+                .setIntent(cameraIntent)
                 .setListener(new OnActivityResultListener() {
                     @Override
                     public void onActivityResult(int resultCode, Intent data) {
@@ -492,15 +530,17 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
             galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             galleryIntent.setType("image/*");
         } else {
-            galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-            galleryIntent.setType("video/*");
-
+            //Removing these for my application as it is photo only, no video.
+//            galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+//            galleryIntent.setType("video/*");
+            galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            galleryIntent.setType("image/*");
         }
 
-        if (galleryIntent.resolveActivity(getActivity().getPackageManager()) == null) {
-            errorMessage("This Application do not have Gallery Application");
-            return;
-        }
+//        if (galleryIntent.resolveActivity(getActivity().getPackageManager()) == null) {
+//            errorMessage("This Application does not have the Gallery Application");
+//            return;
+//        }
 
         TedOnActivityResult.with(getActivity())
                 .setIntent(galleryIntent)
