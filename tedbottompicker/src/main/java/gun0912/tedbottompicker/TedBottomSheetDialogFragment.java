@@ -1,16 +1,13 @@
 package gun0912.tedbottompicker;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -61,6 +58,10 @@ import gun0912.tedbottompicker.util.RealPathUtil;
 
 public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
+    public static final int TAG_TAKE_PHOTO_ERROR = -7878;
+    public static final int TAG_SELECT_GALLERY_ERROR = -7879;
+    public static final int TAG_SELECT_CAMERA_ERROR = -7880;
+
     private static final String EXTRA_CAMERA_IMAGE_URI = "camera_image_uri";
     private static final String EXTRA_CAMERA_SELECTED_IMAGE_URI = "camera_selected_image_uri";
     public BaseBuilder builder;
@@ -69,6 +70,7 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private TextView tv_title;
     private Button btn_done;
 
+    private TedCallbackListener errorCallbackListener;
     private FrameLayout selected_photos_container_frame;
     private LinearLayout selected_photos_container;
 
@@ -108,6 +110,7 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
             cameraImageUri = savedInstanceState.getParcelable(EXTRA_CAMERA_IMAGE_URI);
             tempUriList = savedInstanceState.getParcelableArrayList(EXTRA_CAMERA_SELECTED_IMAGE_URI);
         }
+        this.errorCallbackListener = builder.errorCallbackListener;
     }
 
     @Override
@@ -255,19 +258,29 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
                         try {
                             startCameraIntent();
                         } catch (Exception e){
-                            e.printStackTrace();
+                            if(errorCallbackListener != null){
+                                errorCallbackListener.onCallbackHit(e, TAG_SELECT_CAMERA_ERROR);
+                            }
                         }
                         break;
                     case GalleryAdapter.PickerTile.GALLERY:
                         try {
                             startGalleryIntent();
                         } catch (Exception e){
-                            e.printStackTrace();
+                            if(errorCallbackListener != null){
+                                errorCallbackListener.onCallbackHit(e, TAG_SELECT_GALLERY_ERROR);
+                            }
                         }
                         break;
                     case GalleryAdapter.PickerTile.IMAGE:
-                        if (pickerTile.getImageUri() != null) {
-                            complete(pickerTile.getImageUri());
+                        try {
+                            if (pickerTile.getImageUri() != null) {
+                                complete(pickerTile.getImageUri());
+                            }
+                        } catch (Exception e){
+                            if(errorCallbackListener != null){
+                                errorCallbackListener.onCallbackHit(e, TAG_SELECT_GALLERY_ERROR);
+                            }
                         }
 
                         break;
@@ -430,7 +443,6 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
 //                }
 //            }
 //        }
-
 
         Uri photoURI = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", mediaFile);
 
@@ -662,6 +674,7 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
         OnImageSelectedListener onImageSelectedListener;
         OnMultiImageSelectedListener onMultiImageSelectedListener;
         OnErrorListener onErrorListener;
+        private TedCallbackListener errorCallbackListener;
         private String title;
         private boolean showTitle = true;
         private List<Uri> selectedUriList;
@@ -685,6 +698,11 @@ public class TedBottomSheetDialogFragment extends BottomSheetDialogFragment {
             setCameraTile(R.drawable.ic_camera);
             setGalleryTile(R.drawable.ic_gallery);
             setSpacingResId(R.dimen.tedbottompicker_grid_layout_margin);
+        }
+
+        public T setErrorCallbackListener(TedCallbackListener errorCallbackListener) {
+            this.errorCallbackListener = errorCallbackListener;
+            return (T) this;
         }
 
         public T setCameraTile(@DrawableRes int cameraTileResId) {
